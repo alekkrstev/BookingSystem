@@ -1,0 +1,43 @@
+﻿@model BookingSystem.Application.DTOs.LoginDto
+
+@{
+    ViewData["Title"] = "Најавување";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Најавување</h2>
+
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label">Корисничко име</label>
+                        <input asp-for="UserName" class="form-control" placeholder="Внесете корисничко име" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Лозинка</label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Внесете лозинка" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Најави се</button>
+                    </div>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <p>Немате профил? <a asp-action="Register">Регистрирајте се</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,177 @@
+﻿@model BookingSystem.Application.DTOs.CreateAppointmentDto
+@using BookingSystem.Application.Constants
+
+@{
+    ViewData["Title"] = "Закажи Термин";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Закажи Нов Термин</h2>
+
+                    <form asp-action="Create" method="post" id="bookingForm">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Service Type Dropdown -->
+                        <div class="mb-4">
+                            <label asp-for="ServiceType" class="form-label fw-bold">Изберете Активност</label>
+                            <select asp-for="ServiceType" class="form-select form-select-lg" id="serviceTypeSelect">
+                                <option value="">-- Изберете активност --</option>
+                                @foreach (var type in ServiceTypes.AllTypes)
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ServiceType" class="text-danger"></span>
+                        </div>
+
+                        <!-- Date Picker -->
+                        <div class="mb-4">
+                            <label asp-for="SelectedDate" class="form-label fw-bold">Изберете Датум</label>
+                            <input asp-for="SelectedDate" type="date" class="form-control form-control-lg"
+                                   id="dateSelect" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="SelectedDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Time Slots Calendar -->
+                        <div class="mb-4" id="timeSlotsContainer" style="display: none;">
+                            <label class="form-label fw-bold">Изберете Време (30-минутни интервали)</label>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Легенда:</strong>
+                                <span class="badge bg-success">Слободно</span>
+                                <span class="badge bg-danger">Зафатено</span>
+                            </div>
+                            <div id="timeSlotsGrid" class="row g-2">
+                                <!-- Time slots will be loaded here via JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Hidden Fields -->
+                        <input type="hidden" asp-for="SelectedTimeSlot" id="selectedTimeSlot" />
+                        <input type="hidden" asp-for="DurationInSlots" value="1" id="durationInSlots" />
+
+                        <!-- Duration Selector -->
+                        <div class="mb-4" id="durationContainer" style="display: none;">
+                            <label class="form-label fw-bold">Времетраење</label>
+                            <select class="form-select" id="durationSelect" onchange="updateDuration(this.value)">
+                                <option value="1">30 минути (1 интервал)</option>
+                                <option value="2">1 час (2 интервали)</option>
+                                <option value="3">1.5 часа (3 интервали)</option>
+                                <option value="4">2 часа (4 интервали)</option>
+                            </select>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-4">
+                            <label asp-for="Notes" class="form-label">Белешки (опционално)</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"
+                                      placeholder="Дополнителни информации..."></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+                                <i class="bi bi-check-circle"></i> Закажи
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Откажи
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        let selectedSlot = null;
+
+        // Load time slots when service type and date are selected
+        document.getElementById('serviceTypeSelect').addEventListener('change', loadTimeSlots);
+        document.getElementById('dateSelect').addEventListener('change', loadTimeSlots);
+
+        function loadTimeSlots() {
+            const serviceType = document.getElementById('serviceTypeSelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (!serviceType || !date) {
+                document.getElementById('timeSlotsContainer').style.display = 'none';
+                return;
+            }
+
+            // Show loading
+            document.getElementById('timeSlotsContainer').style.display = 'block';
+            document.getElementById('timeSlotsGrid').innerHTML = '<div class="col-12"><p class="text-center">Се вчитува...</p></div>';
+
+            // Fetch availability from server
+            fetch(`/Appointment/GetAvailability?date=${date}&serviceType=${encodeURIComponent(serviceType)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayTimeSlots(data.timeSlots);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('timeSlotsGrid').innerHTML = '<div class="col-12"><p class="text-danger">Грешка при вчитување на термините</p></div>';
+                });
+        }
+
+        function displayTimeSlots(slots) {
+            const grid = document.getElementById('timeSlotsGrid');
+            grid.innerHTML = '';
+
+            slots.forEach(slot => {
+                const timeStr = slot.time;
+                const available = slot.isAvailable;
+
+                const col = document.createElement('div');
+                col.className = 'col-6 col-sm-4 col-md-3 col-lg-2';
+
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `btn w-100 ${available ? 'btn-outline-success' : 'btn-danger'}`;
+                button.disabled = !available;
+                button.innerHTML = timeStr;
+
+                if (!available && slot.reservedBy) {
+                    button.title = `Резервирано од ${slot.reservedBy}`;
+                }
+
+                if (available) {
+                    button.onclick = () => selectTimeSlot(timeStr, button);
+                }
+
+                col.appendChild(button);
+                grid.appendChild(col);
+            });
+        }
+
+        function selectTimeSlot(time, button) {
+            // Remove previous selection
+            document.querySelectorAll('#timeSlotsGrid .btn').forEach(btn => {
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-success');
+            });
+
+            // Highlight selected
+            button.classList.remove('btn-outline-success');
+            button.classList.add('btn-success');
+
+            selectedSlot = time;
+            document.getElementById('selectedTimeSlot').value = time;
+            document.getElementById('durationContainer').style.display = 'block';
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function updateDuration(value) {
+            document.getElementById('durationInSlots').value = value;
+        }
+    </script>
+}

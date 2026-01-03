@@ -1,0 +1,87 @@
+﻿@model IEnumerable<BookingSystem.Application.DTOs.AppointmentDto>
+
+@{
+    ViewData["Title"] = "Администраторска Табла";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Администраторска Табла - Сите Закажувања</h2>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Корисник</th>
+                        <th>Активност</th>
+                        <th>Датум</th>
+                        <th>Време</th>
+                        <th>Времетраење</th>
+                        <th>Статус</th>
+                        <th>Белешки</th>
+                        <th>Акции</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var appointment in Model)
+                    {
+                        var duration = (appointment.EndTime - appointment.StartTime).TotalMinutes;
+                        <tr>
+                            <td>@appointment.Id</td>
+                            <td>@appointment.UserName</td>
+                            <td><strong>@appointment.ServiceType</strong></td>
+                            <td>@appointment.StartTime.ToString("dd.MM.yyyy")</td>
+                            <td>@appointment.StartTime.ToString("HH:mm") - @appointment.EndTime.ToString("HH:mm")</td>
+                            <td>@duration мин</td>
+                            <td>
+                                @if (appointment.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark">Во очекување</span>
+                                }
+                                else if (appointment.Status == "Confirmed")
+                                {
+                                    <span class="badge bg-success">Потврдено</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Откажано</span>
+                                }
+                            </td>
+                            <td>@(appointment.Notes ?? "-")</td>
+                            <td>
+                                <form asp-action="UpdateStatus" asp-route-id="@appointment.Id" method="post" class="d-inline">
+                                    <select name="status" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
+                                        <option value="">Промени статус</option>
+                                        <option value="Pending">Во очекување</option>
+                                        <option value="Confirmed">Потврдено</option>
+                                        <option value="Cancelled">Откажано</option>
+                                    </select>
+                                </form>
+
+                                <form asp-action="DeleteAppointment" asp-route-id="@appointment.Id" method="post" class="d-inline ms-2">
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Дали сте сигурни дека сакате да го избришете терминот?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-3">
+            <p class="text-muted">Вкупно закажувања: <strong>@Model.Count()</strong></p>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">Нема закажани термини</h4>
+            <p>Моментално нема закажани термини во системот.</p>
+        </div>
+    }
+</div>
