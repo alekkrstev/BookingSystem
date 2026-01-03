@@ -1,0 +1,8 @@
+**/.vs
+**/.vscode
+**/bin
+**/*.user
+**/.git
+**/.gitignore
+**/node_modules
+**/launchSettings.json
