@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -37,22 +41,11 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-    - name: Extract metadata for Docker
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ secrets.DOCKERHUB_USERNAME }}/bookingsystem
-        tags: |
-          type=raw,value=latest
-          type=sha,prefix={{branch}}-
-          
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ./BookingSystemm
-        file: ./BookingSystemm/Dockerfile
+        context: .
+        file: ./Dockerfile
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/bookingsystem:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/bookingsystem:buildcache,mode=max
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/bookingsystem:latest
+        platforms: linux/amd64
