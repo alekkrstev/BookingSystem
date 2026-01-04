@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bookingsystem-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - bookingsystem-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bookingsystem-web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=BookingSystemDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;MultipleActiveResultSets=true;ConnectRetryCount=3;ConnectRetryInterval=10
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - bookingsystem-network
+    restart: on-failure
+
+volumes:
+  sqldata:
+
+networks:
+  bookingsystem-network:
+    driver: bridge
