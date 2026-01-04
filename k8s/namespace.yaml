@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bookingsystem
+  labels:
+    name: bookingsystem
+    app: booking-system
