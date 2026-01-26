@@ -1,0 +1,89 @@
+﻿@model IEnumerable<BookingSystem.Application.DTOs.ActivityDto>
+
+@{
+    ViewData["Title"] = "Активности";
+}
+
+<div class="container mt-4">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white">
+            <i class="bi bi-grid-3x3"></i> Управување со Активности
+        </h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Додади Нова Активност
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var activity in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="font-size: 3rem; margin-right: 15px;">@activity.Icon</div>
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-1">@activity.NameMk</h5>
+                                <small class="text-muted">@activity.Name</small>
+                            </div>
+                            @if (activity.IsActive)
+                            {
+                                <span class="badge bg-success">Активно</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Неактивно</span>
+                            }
+                        </div>
+
+                        <p class="card-text">@activity.Description</p>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-cash"></i> Цена:</span>
+                                <strong>@activity.PricePerHour ден/час</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-people"></i> Макс. играчи:</span>
+                                <strong>@activity.MaxPlayers</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-star"></i> Рејтинг:</span>
+                                <strong>@activity.AverageRating.ToString("F1") / 5.0 (@activity.ReviewCount)</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span><i class="bi bi-calendar-check"></i> Резервации:</span>
+                                <strong>@activity.AppointmentCount</strong>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="Edit" asp-route-id="@activity.Id" class="btn btn-primary btn-sm flex-fill">
+                                <i class="bi bi-pencil"></i> Едитирај
+                            </a>
+                            <form asp-action="ToggleStatus" asp-route-id="@activity.Id" method="post" class="flex-fill">
+                                <button type="submit" class="btn btn-warning btn-sm w-100">
+                                    <i class="bi bi-toggle-on"></i> Toggle
+                                </button>
+                            </form>
+                            <form asp-action="Delete" asp-route-id="@activity.Id" method="post"
+                                  onsubmit="return confirm('Дали сте сигурни?')" class="flex-fill">
+                                <button type="submit" class="btn btn-danger btn-sm w-100">
+                                    <i class="bi bi-trash"></i> Избриши
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

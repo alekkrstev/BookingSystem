@@ -17,8 +17,30 @@ namespace BookingSystem.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> AdminDashboard()
         {
+            // Cleanup expired appointments
+            await CleanupExpiredAppointmentsAsync();
+
             var appointments = await _appointmentService.GetAllAppointmentsAsync();
             return View(appointments);
+        }
+        private async Task CleanupExpiredAppointmentsAsync()
+        {
+            try
+            {
+                var allAppointments = await _appointmentService.GetAllAppointmentsAsync();
+                var expiredAppointments = allAppointments
+                    .Where(a => a.EndTime < DateTime.Now && a.Status != "Cancelled")
+                    .ToList();
+
+                foreach (var appointment in expiredAppointments)
+                {
+                    await _appointmentService.DeleteAppointmentAsync(appointment.Id);
+                }
+            }
+            catch (Exception)
+            {
+                // Silent fail
+            }
         }
 
         [HttpPost]

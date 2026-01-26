@@ -24,6 +24,7 @@ namespace BookingSystem.Infrastructure.Repositories
         {
             return await _context.Appointments
                 .Include(a => a.User)
+                .Include(a => a.Activity) // Changed
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
@@ -31,15 +32,16 @@ namespace BookingSystem.Infrastructure.Repositories
         {
             return await _context.Appointments
                 .Include(a => a.User)
-                .OrderByDescending(a => a.StartTime)
+                .Include(a => a.Activity) 
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Appointment>> GetByUserIdAsync(int userId)
         {
             return await _context.Appointments
-                .Include(a => a.User)
                 .Where(a => a.UserId == userId)
+                .Include(a => a.User)
+                .Include(a => a.Activity) 
                 .OrderByDescending(a => a.StartTime)
                 .ToListAsync();
         }

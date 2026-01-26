@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using BookingSystem.Application.DTOs;
+﻿using BookingSystem.Application.DTOs;
 
 namespace BookingSystem.Application.Interfaces
 {
@@ -16,7 +10,7 @@ namespace BookingSystem.Application.Interfaces
         Task<AppointmentDto?> GetAppointmentByIdAsync(int id);
         Task<bool> UpdateAppointmentStatusAsync(int id, string status);
         Task<bool> DeleteAppointmentAsync(int id);
-        Task<AvailabilityDto> GetAvailabilityAsync(DateTime date, string serviceType);
-        Task<bool> IsTimeSlotAvailableAsync(DateTime date, TimeSpan startTime, TimeSpan endTime, string serviceType);
+        Task<AvailabilityDto> GetAvailabilityAsync(DateTime date, int activityId); // Changed
+        Task<bool> IsTimeSlotAvailableAsync(DateTime date, TimeSpan startTime, TimeSpan endTime, int activityId); // Changed
     }
 }

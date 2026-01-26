@@ -7,46 +7,46 @@
 
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-md-6 col-lg-5">
             <div class="card shadow">
-                <div class="card-body">
-                    <h2 class="card-title mb-4">Закажи Нов Термин</h2>
-
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4 text-center">📅 Закажи Термин</h3>
+                    
                     <form asp-action="Create" method="post" id="bookingForm">
                         <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
-
-                        <!-- Service Type Dropdown -->
-                        <div class="mb-4">
-                            <label asp-for="ServiceType" class="form-label fw-bold">Изберете Активност</label>
-                            <select asp-for="ServiceType" class="form-select form-select-lg" id="serviceTypeSelect">
-                                <option value="">-- Изберете активност --</option>
-                                @foreach (var type in ServiceTypes.AllTypes)
+                        
+                        <!-- Activity -->
+                        <div class="mb-3">
+                            <label asp-for="ActivityId" class="form-label fw-bold">Активност</label>
+                            <select asp-for="ActivityId" class="form-select" id="activitySelect">
+                                <option value="">-- Избери --</option>
+                                @foreach (var activity in ViewBag.Activities as IEnumerable<BookingSystem.Application.DTOs.ActivityDto>)
                                 {
-                                    <option value="@type">@type</option>
+                                    <option value="@activity.Id" selected="@(Model.ActivityId == activity.Id)">
+                                        @activity.Icon @activity.NameMk
+                                    </option>
                                 }
                             </select>
-                            <span asp-validation-for="ServiceType" class="text-danger"></span>
+                            <span asp-validation-for="ActivityId" class="text-danger"></span>
                         </div>
-
-                        <!-- Date Picker -->
-                        <div class="mb-4">
-                            <label asp-for="SelectedDate" class="form-label fw-bold">Изберете Датум</label>
-                            <input asp-for="SelectedDate" type="date" class="form-control form-control-lg"
+                        
+                        <!-- Date -->
+                        <div class="mb-3">
+                            <label asp-for="SelectedDate" class="form-label fw-bold">Датум</label>
+                            <input asp-for="SelectedDate" type="date" class="form-control" 
                                    id="dateSelect" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
                             <span asp-validation-for="SelectedDate" class="text-danger"></span>
                         </div>
 
-                        <!-- Time Slots Calendar -->
-                        <div class="mb-4" id="timeSlotsContainer" style="display: none;">
-                            <label class="form-label fw-bold">Изберете Време (30-минутни интервали)</label>
-                            <div class="alert alert-info">
-                                <i class="bi bi-info-circle"></i>
-                                <strong>Легенда:</strong>
-                                <span class="badge bg-success">Слободно</span>
+                        <!-- Time Slots -->
+                        <div class="mb-3" id="timeSlotsContainer" style="display: none;">
+                            <label class="form-label fw-bold">Време (30 мин)</label>
+                            <div class="alert alert-info small p-2">
+                                <span class="badge bg-success">Слободно</span> 
                                 <span class="badge bg-danger">Зафатено</span>
                             </div>
-                            <div id="timeSlotsGrid" class="row g-2">
-                                <!-- Time slots will be loaded here via JavaScript -->
+                            <div id="timeSlotsGrid" class="time-slots-compact">
+                                <!-- Loaded via JS -->
                             </div>
                         </div>
 
@@ -54,30 +54,90 @@
                         <input type="hidden" asp-for="SelectedTimeSlot" id="selectedTimeSlot" />
                         <input type="hidden" asp-for="DurationInSlots" value="1" id="durationInSlots" />
 
-                        <!-- Duration Selector -->
-                        <div class="mb-4" id="durationContainer" style="display: none;">
+                        <!-- Duration -->
+                        <div class="mb-3" id="durationContainer" style="display: none;">
                             <label class="form-label fw-bold">Времетраење</label>
-                            <select class="form-select" id="durationSelect" onchange="updateDuration(this.value)">
-                                <option value="1">30 минути (1 интервал)</option>
-                                <option value="2">1 час (2 интервали)</option>
-                                <option value="3">1.5 часа (3 интервали)</option>
-                                <option value="4">2 часа (4 интервали)</option>
+                            <select class="form-select form-select-sm" id="durationSelect" onchange="updateDuration(this.value)">
+                                <!-- Options will be populated dynamically -->
                             </select>
+                            <small class="text-muted" id="durationHint"></small>
                         </div>
 
-                        <!-- Notes -->
-                        <div class="mb-4">
-                            <label asp-for="Notes" class="form-label">Белешки (опционално)</label>
-                            <textarea asp-for="Notes" class="form-control" rows="3"
-                                      placeholder="Дополнителни информации..."></textarea>
+                        <!-- People Picker - Star Style -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Број на луѓе</label>
+                            <div class="people-picker-stars">
+                                <span class="stickman-star" data-count="1" onclick="selectPeople(1)" onmouseover="hoverPeople(1)" onmouseout="resetHover()">
+                                    <svg viewBox="0 0 100 100" class="stickman-svg-small">
+                                        <circle cx="50" cy="20" r="12"/>
+                                        <line x1="50" y1="32" x2="50" y2="60" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="35" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="65" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="35" y2="85" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="65" y2="85" stroke-width="4"/>
+                                    </svg>
+                                </span>
+                                <span class="stickman-star" data-count="2" onclick="selectPeople(2)" onmouseover="hoverPeople(2)" onmouseout="resetHover()">
+                                    <svg viewBox="0 0 100 100" class="stickman-svg-small">
+                                        <circle cx="50" cy="20" r="12"/>
+                                        <line x1="50" y1="32" x2="50" y2="60" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="35" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="65" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="35" y2="85" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="65" y2="85" stroke-width="4"/>
+                                    </svg>
+                                </span>
+                                <span class="stickman-star" data-count="3" onclick="selectPeople(3)" onmouseover="hoverPeople(3)" onmouseout="resetHover()">
+                                    <svg viewBox="0 0 100 100" class="stickman-svg-small">
+                                        <circle cx="50" cy="20" r="12"/>
+                                        <line x1="50" y1="32" x2="50" y2="60" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="35" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="65" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="35" y2="85" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="65" y2="85" stroke-width="4"/>
+                                    </svg>
+                                </span>
+                                <span class="stickman-star" data-count="4" onclick="selectPeople(4)" onmouseover="hoverPeople(4)" onmouseout="resetHover()">
+                                    <svg viewBox="0 0 100 100" class="stickman-svg-small">
+                                        <circle cx="50" cy="20" r="12"/>
+                                        <line x1="50" y1="32" x2="50" y2="60" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="35" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="65" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="35" y2="85" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="65" y2="85" stroke-width="4"/>
+                                    </svg>
+                                </span>
+                                <span class="stickman-star" data-count="5" onclick="selectPeople(5)" onmouseover="hoverPeople(5)" onmouseout="resetHover()">
+                                    <svg viewBox="0 0 100 100" class="stickman-svg-small">
+                                        <circle cx="50" cy="20" r="12"/>
+                                        <line x1="50" y1="32" x2="50" y2="60" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="35" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="65" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="35" y2="85" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="65" y2="85" stroke-width="4"/>
+                                    </svg>
+                                </span>
+                                <span class="stickman-star" data-count="6" onclick="selectPeople(6)" onmouseover="hoverPeople(6)" onmouseout="resetHover()">
+                                    <svg viewBox="0 0 100 100" class="stickman-svg-small">
+                                        <circle cx="50" cy="20" r="12"/>
+                                        <line x1="50" y1="32" x2="50" y2="60" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="35" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="40" x2="65" y2="55" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="35" y2="85" stroke-width="4"/>
+                                        <line x1="50" y1="60" x2="65" y2="85" stroke-width="4"/>
+                                    </svg>
+                                </span>
+                            </div>
+                            <input type="hidden" asp-for="Notes" id="peopleCount" value="1" />
+                            <small class="text-muted" id="peopleDisplay">1 човек</small>
                         </div>
-
-                        <!-- Submit Button -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+                        
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
                                 <i class="bi bi-check-circle"></i> Закажи
                             </button>
-                            <a asp-action="Index" class="btn btn-secondary">
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
                                 <i class="bi bi-x-circle"></i> Откажи
                             </a>
                         </div>
@@ -90,36 +150,35 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
+    
     <script>
         let selectedSlot = null;
+        let selectedPeopleCount = 1;
 
-        // Load time slots when service type and date are selected
-        document.getElementById('serviceTypeSelect').addEventListener('change', loadTimeSlots);
+        // Load time slots
+        document.getElementById('activitySelect').addEventListener('change', loadTimeSlots);
         document.getElementById('dateSelect').addEventListener('change', loadTimeSlots);
 
         function loadTimeSlots() {
-            const serviceType = document.getElementById('serviceTypeSelect').value;
+            const activityId = document.getElementById('activitySelect').value;
             const date = document.getElementById('dateSelect').value;
 
-            if (!serviceType || !date) {
+            if (!activityId || !date) {
                 document.getElementById('timeSlotsContainer').style.display = 'none';
                 return;
             }
 
-            // Show loading
             document.getElementById('timeSlotsContainer').style.display = 'block';
-            document.getElementById('timeSlotsGrid').innerHTML = '<div class="col-12"><p class="text-center">Се вчитува...</p></div>';
+            document.getElementById('timeSlotsGrid').innerHTML = '<p class="text-center small">Се вчитува...</p>';
 
-            // Fetch availability from server
-            fetch(`/Appointment/GetAvailability?date=${date}&serviceType=${encodeURIComponent(serviceType)}`)
+            fetch(`/Appointment/GetAvailability?date=${date}&activityId=${activityId}`)
                 .then(response => response.json())
                 .then(data => {
                     displayTimeSlots(data.timeSlots);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('timeSlotsGrid').innerHTML = '<div class="col-12"><p class="text-danger">Грешка при вчитување на термините</p></div>';
+                    document.getElementById('timeSlotsGrid').innerHTML = '<p class="text-danger small">Грешка</p>';
                 });
         }
 
@@ -130,15 +189,14 @@
             slots.forEach(slot => {
                 const timeStr = slot.time;
                 const available = slot.isAvailable;
-
-                const col = document.createElement('div');
-                col.className = 'col-6 col-sm-4 col-md-3 col-lg-2';
-
+                
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = `btn w-100 ${available ? 'btn-outline-success' : 'btn-danger'}`;
+                button.className = `btn btn-sm ${available ? 'btn-outline-success' : 'btn-danger'}`;
                 button.disabled = !available;
                 button.innerHTML = timeStr;
+                button.style.minWidth = '70px';
+                button.style.fontSize = '0.85rem';
 
                 if (!available && slot.reservedBy) {
                     button.title = `Резервирано од ${slot.reservedBy}`;
@@ -148,30 +206,127 @@
                     button.onclick = () => selectTimeSlot(timeStr, button);
                 }
 
-                col.appendChild(button);
-                grid.appendChild(col);
+                grid.appendChild(button);
             });
         }
 
-        function selectTimeSlot(time, button) {
-            // Remove previous selection
+                function selectTimeSlot(time, button) {
             document.querySelectorAll('#timeSlotsGrid .btn').forEach(btn => {
                 btn.classList.remove('btn-success');
                 btn.classList.add('btn-outline-success');
             });
 
-            // Highlight selected
             button.classList.remove('btn-outline-success');
             button.classList.add('btn-success');
 
             selectedSlot = time;
             document.getElementById('selectedTimeSlot').value = time;
+
+            // Calculate max duration until midnight (00:00)
+            updateDurationOptions(time);
+
             document.getElementById('durationContainer').style.display = 'block';
             document.getElementById('submitBtn').disabled = false;
+        }
+
+        function updateDurationOptions(selectedTime) {
+            // Parse selected time (format: "HH:mm")
+            const [hours, minutes] = selectedTime.split(':').map(Number);
+            const selectedMinutes = hours * 60 + minutes;
+            const midnightMinutes = 24 * 60; // 00:00 next day
+
+            // Calculate available slots until midnight
+            const availableMinutes = midnightMinutes - selectedMinutes;
+            const maxSlots = Math.floor(availableMinutes / 30);
+
+            // Populate duration dropdown
+            const durationSelect = document.getElementById('durationSelect');
+            durationSelect.innerHTML = '';
+
+            const durationOptions = [
+                { slots: 1, label: '30 мин' },
+                { slots: 2, label: '1 час' },
+                { slots: 3, label: '1.5 часа' },
+                { slots: 4, label: '2 часа' },
+                { slots: 5, label: '2.5 часа' },
+                { slots: 6, label: '3 часа' }
+            ];
+
+            durationOptions.forEach(option => {
+                if (option.slots <= maxSlots) {
+                    const opt = document.createElement('option');
+                    opt.value = option.slots;
+                    opt.textContent = option.label;
+                    durationSelect.appendChild(opt);
+                }
+            });
+
+            // Set default to 1 slot
+            durationSelect.value = '1';
+            document.getElementById('durationInSlots').value = '1';
+
+            // Update hint
+            const hint = document.getElementById('durationHint');
+            if (maxSlots === 1) {
+                hint.textContent = '⚠️ Последен слот до полноќ - само 30 мин';
+            } else if (maxSlots === 2) {
+                hint.textContent = '⚠️ Максимално 1 час до полноќ';
+            } else if (maxSlots === 3) {
+                hint.textContent = '⚠️ Максимално 1.5 часа до полноќ';
+            } else {
+                hint.textContent = '';
+            }
         }
 
         function updateDuration(value) {
             document.getElementById('durationInSlots').value = value;
         }
+
+        // People Picker - Star Style
+        function selectPeople(count) {
+            selectedPeopleCount = count;
+            document.querySelectorAll('.stickman-star').forEach((s, index) => {
+                if (index < count) {
+                    s.classList.add('selected');
+                } else {
+                    s.classList.remove('selected');
+                }
+            });
+            document.getElementById('peopleCount').value = `${count} ${count === 1 ? 'човек' : 'луѓе'}`;
+            document.getElementById('peopleDisplay').textContent = `${count} ${count === 1 ? 'човек' : 'луѓе'}`;
+        }
+
+        function hoverPeople(count) {
+            document.querySelectorAll('.stickman-star').forEach((s, index) => {
+                if (index < count) {
+                    s.classList.add('hover');
+                }
+            });
+        }
+
+        function resetHover() {
+            document.querySelectorAll('.stickman-star').forEach(s => {
+                s.classList.remove('hover');
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            selectPeople(1);
+        });
+
+                // Auto-load time slots if service and date are preselected
+                document.addEventListener('DOMContentLoaded', function() {
+            selectPeople(1);
+
+            const activityId = document.getElementById('activitySelect').value;
+            const date = document.getElementById('dateSelect').value;
+
+            if (activityId && date) {
+                setTimeout(function() {
+                    loadTimeSlots();
+                }, 100);
+            }
+        });
     </script>
 }

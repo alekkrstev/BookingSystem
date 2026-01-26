@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace BookingSystem.Domain.Entities
 {
-    public class Appointment
+    public class Review
     {
         public int Id { get; set; }
         public int UserId { get; set; }
         public int ActivityId { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; } 
-        public string Status { get; set; } = "Pending"; // "Pending", "Confirmed", "Cancelled"
-        public string? Notes { get; set; }
+        public int Rating { get; set; } // 1-5
+        public string Comment { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation property
+        // Navigation properties
         public User User { get; set; } = null!;
         public Activity Activity { get; set; } = null!;
     }

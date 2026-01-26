@@ -1,7 +1,7 @@
 ﻿using BookingSystem.Domain.Entities;
-using BookingSystem.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace BookingSystem.Infrastructure.Seeders
+namespace BookingSystem.Infrastructure.Data
 {
     public class DatabaseSeeder
     {
@@ -14,72 +14,97 @@ namespace BookingSystem.Infrastructure.Seeders
 
         public async Task SeedAsync()
         {
-            // Check if users already exist
-            if (_context.Users.Any())
-                return;
+            // Seed Activities first
+            await SeedActivitiesAsync();
 
-            // Create admin user
-            var adminUser = new User
+            // Seed Users
+            await SeedUsersAsync();
+
+            // Seed Appointments (optional - можеш да го избришеш ова)
+            // await SeedAppointmentsAsync();
+        }
+
+        private async Task SeedActivitiesAsync()
+        {
+            if (await _context.Activities.AnyAsync())
+                return; // Already seeded
+
+            var activities = new List<Activity>
             {
-                UserName = "admin",
-                Email = "admin@bookingsystem.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-                FirstName = "Админ",
-                LastName = "Администратор",
-                Role = "Admin",
-                CreatedAt = DateTime.UtcNow
+                new Activity
+                {
+                    Name = "Sony PlayStation",
+                    NameMk = "Sony PlayStation",
+                    Description = "Играј ги твоите омилени игри на најновата конзола - FIFA, GTA, Call of Duty и многу други!",
+                    Icon = "🎮",
+                    PricePerHour = 500,
+                    MaxPlayers = 4,
+                    IsActive = true
+                },
+                new Activity
+                {
+                    Name = "Darts",
+                    NameMk = "Пикадо",
+                    Description = "Покажи ја твојата прецизност и вештина во класичната игра на пикадо.",
+                    Icon = "🎯",
+                    PricePerHour = 300,
+                    MaxPlayers = 4,
+                    IsActive = true
+                },
+                new Activity
+                {
+                    Name = "8-Ball Pool",
+                    NameMk = "Билјард",
+                    Description = "Уживај во класична игра на билјард со пријатели.",
+                    Icon = "🎱",
+                    PricePerHour = 400,
+                    MaxPlayers = 2,
+                    IsActive = true
+                },
+                new Activity
+                {
+                    Name = "FIFA",
+                    NameMk = "Фудбалче",
+                    Description = "Соперничи се во најдобрата фудбалска игра!",
+                    Icon = "⚽",
+                    PricePerHour = 250,
+                    MaxPlayers = 2,
+                    IsActive = true
+                }
             };
 
-            // Create test user
-            var testUser = new User
-            {
-                UserName = "testuser",
-                Email = "test@bookingsystem.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Test123!"),
-                FirstName = "Тест",
-                LastName = "Корисник",
-                Role = "User",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Users.AddRange(adminUser, testUser);
+            await _context.Activities.AddRangeAsync(activities);
             await _context.SaveChangesAsync();
+        }
 
-            // Create some sample appointments for test user
-            var appointment1 = new Appointment
+        private async Task SeedUsersAsync()
+        {
+            if (await _context.Users.AnyAsync())
+                return; // Already seeded
+
+            var users = new List<User>
             {
-                UserId = testUser.Id,
-                ServiceType = "Sony PlayStation",
-                StartTime = DateTime.Now.AddDays(1).Date.AddHours(20),
-                EndTime = DateTime.Now.AddDays(1).Date.AddHours(21),
-                Status = "Pending",
-                Notes = "GTA V игра",
-                CreatedAt = DateTime.UtcNow
+                new User
+                {
+                    UserName = "admin",
+                    Email = "admin@booking.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                    FirstName = "Admin",
+                    LastName = "User",
+                    Role = "Admin"
+                },
+                new User
+                {
+                    UserName = "testuser",
+                    Email = "test@booking.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Test123!"),
+                    FirstName = "Test",
+                    LastName = "User",
+                    Role = "User"
+                }
             };
 
-            var appointment2 = new Appointment
-            {
-                UserId = testUser.Id,
-                ServiceType = "Darts",
-                StartTime = DateTime.Now.AddDays(2).Date.AddHours(19).AddMinutes(30),
-                EndTime = DateTime.Now.AddDays(2).Date.AddHours(20).AddMinutes(30),
-                Status = "Confirmed",
-                Notes = "Турнир во дартс",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var appointment3 = new Appointment
-            {
-                UserId = testUser.Id,
-                ServiceType = "8-Ball Pool",
-                StartTime = DateTime.Now.AddDays(3).Date.AddHours(21),
-                EndTime = DateTime.Now.AddDays(3).Date.AddHours(22),
-                Status = "Pending",
-                Notes = "Пријателски меч",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Appointments.AddRange(appointment1, appointment2, appointment3);
+            await _context.Users.AddRangeAsync(users);
             await _context.SaveChangesAsync();
         }
     }

@@ -1,0 +1,118 @@
+﻿@model BookingSystem.Application.DTOs.CreateReviewDto
+
+@{
+    ViewData["Title"] = "Додади Рецензија";
+    var activity = ViewBag.Activity as BookingSystem.Application.DTOs.ActivityDto;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <!-- Activity Info -->
+                    <div class="text-center mb-4">
+                        <div style="font-size: 4rem;">@activity.Icon</div>
+                        <h3 class="mt-3">@activity.NameMk</h3>
+                        <p class="text-muted">@activity.Description</p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h4 class="text-center mb-4">⭐ Остави Рецензија</h4>
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <input type="hidden" asp-for="ActivityId" />
+
+                        <!-- Rating -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Рејтинг</label>
+                            <div class="rating-stars" id="ratingStars">
+                                <span class="star" data-rating="1">⭐</span>
+                                <span class="star" data-rating="2">⭐</span>
+                                <span class="star" data-rating="3">⭐</span>
+                                <span class="star" data-rating="4">⭐</span>
+                                <span class="star" data-rating="5">⭐</span>
+                            </div>
+                            <input type="hidden" asp-for="Rating" id="ratingInput" />
+                            <span asp-validation-for="Rating" class="text-danger"></span>
+                        </div>
+
+                        <!-- Comment -->
+                        <div class="mb-4">
+                            <label asp-for="Comment" class="form-label fw-bold">Коментар</label>
+                            <textarea asp-for="Comment" class="form-control" rows="5"
+                                      placeholder="Напишете го вашето мислење..."></textarea>
+                            <span asp-validation-for="Comment" class="text-danger"></span>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Испрати Рецензија
+                            </button>
+                            <a asp-action="MyReviews" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Откажи
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Star rating system
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('ratingInput');
+        let selectedRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                ratingInput.value = selectedRating;
+                updateStars();
+            });
+
+            star.addEventListener('mouseover', function() {
+                const hoverRating = parseInt(this.dataset.rating);
+                highlightStars(hoverRating);
+            });
+        });
+
+        document.getElementById('ratingStars').addEventListener('mouseout', function() {
+            highlightStars(selectedRating);
+        });
+
+        function highlightStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.style.opacity = '1';
+                    star.style.transform = 'scale(1.2)';
+                } else {
+                    star.style.opacity = '0.3';
+                    star.style.transform = 'scale(1)';
+                }
+            });
+        }
+
+        function updateStars() {
+            highlightStars(selectedRating);
+        }
+
+        // Style stars
+        stars.forEach(star => {
+            star.style.cursor = 'pointer';
+            star.style.fontSize = '2.5rem';
+            star.style.transition = 'all 0.2s ease';
+            star.style.display = 'inline-block';
+            star.style.margin = '0 5px';
+        });
+    </script>
+}

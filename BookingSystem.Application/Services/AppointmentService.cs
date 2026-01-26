@@ -8,23 +8,27 @@ using BookingSystem.Application.DTOs;
 using BookingSystem.Application.Interfaces;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Interfaces;
-using BookingSystem.Application.Constants;
 
 namespace BookingSystem.Application.Services
 {
     public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IActivityRepository _activityRepository;
 
-        public AppointmentService(IAppointmentRepository appointmentRepository)
+        public AppointmentService(
+            IAppointmentRepository appointmentRepository,
+            IActivityRepository activityRepository)
         {
             _appointmentRepository = appointmentRepository;
+            _activityRepository = activityRepository;
         }
 
         public async Task<AppointmentDto?> CreateAppointmentAsync(int userId, CreateAppointmentDto dto)
         {
-            // Validate service type
-            if (!ServiceTypes.IsValid(dto.ServiceType))
+            // Validate activity exists and is active
+            var activity = await _activityRepository.GetByIdAsync(dto.ActivityId);
+            if (activity == null || !activity.IsActive)
             {
                 return null;
             }
@@ -51,7 +55,7 @@ namespace BookingSystem.Application.Services
             }
 
             // Check if all time slots are available
-            var isAvailable = await IsTimeSlotAvailableAsync(dto.SelectedDate, startTime, endDateTime.TimeOfDay, dto.ServiceType);
+            var isAvailable = await IsTimeSlotAvailableAsync(dto.SelectedDate, startTime, endDateTime.TimeOfDay, dto.ActivityId);
             if (!isAvailable)
             {
                 return null;
@@ -60,7 +64,7 @@ namespace BookingSystem.Application.Services
             var appointment = new Appointment
             {
                 UserId = userId,
-                ServiceType = dto.ServiceType,
+                ActivityId = dto.ActivityId,
                 StartTime = startDateTime,
                 EndTime = endDateTime,
                 Notes = dto.Notes,
@@ -73,7 +77,10 @@ namespace BookingSystem.Application.Services
             {
                 Id = created.Id,
                 UserId = created.UserId,
-                ServiceType = created.ServiceType,
+                UserName = created.User?.UserName ?? "",
+                ActivityId = created.ActivityId,
+                ActivityName = activity.NameMk,
+                ActivityIcon = activity.Icon,
                 StartTime = created.StartTime,
                 EndTime = created.EndTime,
                 Status = created.Status,
@@ -91,7 +98,9 @@ namespace BookingSystem.Application.Services
                 Id = a.Id,
                 UserId = a.UserId,
                 UserName = a.User?.UserName ?? "",
-                ServiceType = a.ServiceType,
+                ActivityId = a.ActivityId,
+                ActivityName = a.Activity?.NameMk ?? "",
+                ActivityIcon = a.Activity?.Icon ?? "",
                 StartTime = a.StartTime,
                 EndTime = a.EndTime,
                 Status = a.Status,
@@ -109,7 +118,9 @@ namespace BookingSystem.Application.Services
                 Id = a.Id,
                 UserId = a.UserId,
                 UserName = a.User?.UserName ?? "",
-                ServiceType = a.ServiceType,
+                ActivityId = a.ActivityId,
+                ActivityName = a.Activity?.NameMk ?? "",
+                ActivityIcon = a.Activity?.Icon ?? "",
                 StartTime = a.StartTime,
                 EndTime = a.EndTime,
                 Status = a.Status,
@@ -129,7 +140,9 @@ namespace BookingSystem.Application.Services
                 Id = appointment.Id,
                 UserId = appointment.UserId,
                 UserName = appointment.User?.UserName ?? "",
-                ServiceType = appointment.ServiceType,
+                ActivityId = appointment.ActivityId,
+                ActivityName = appointment.Activity?.NameMk ?? "",
+                ActivityIcon = appointment.Activity?.Icon ?? "",
                 StartTime = appointment.StartTime,
                 EndTime = appointment.EndTime,
                 Status = appointment.Status,
@@ -159,25 +172,31 @@ namespace BookingSystem.Application.Services
             return true;
         }
 
-        public async Task<AvailabilityDto> GetAvailabilityAsync(DateTime date, string serviceType)
+        public async Task<AvailabilityDto> GetAvailabilityAsync(DateTime date, int activityId)
         {
             var appointments = await _appointmentRepository.GetAllAsync();
+            var activity = await _activityRepository.GetByIdAsync(activityId);
 
-            // Filter appointments for the specific date and service type
+            // Filter appointments for the specific date and activity
             var dayAppointments = appointments
                 .Where(a => a.StartTime.Date == date.Date &&
-                           a.ServiceType == serviceType &&
+                           a.ActivityId == activityId &&
                            a.Status != "Cancelled")
                 .ToList();
 
             var timeSlots = new List<TimeSlotDto>();
 
-            // Generate time slots from 10:00 to 23:00 in 30-minute intervals
-            for (int hour = 10; hour < 23; hour++)
+            // Generate time slots from 10:00 to 23:30 in 30-minute intervals
+            for (int hour = 10; hour < 24; hour++)
             {
                 for (int minute = 0; minute < 60; minute += 30)
                 {
                     var slotTime = new TimeSpan(hour, minute, 0);
+
+                    // Stop at 23:30
+                    if (slotTime >= new TimeSpan(24, 0, 0))
+                        break;
+
                     var slotDateTime = date.Date + slotTime;
                     var slotEndDateTime = slotDateTime.AddMinutes(30);
 
@@ -201,12 +220,13 @@ namespace BookingSystem.Application.Services
             return new AvailabilityDto
             {
                 Date = date,
-                ServiceType = serviceType,
+                ActivityId = activityId,
+                ActivityName = activity?.NameMk ?? "",
                 TimeSlots = timeSlots
             };
         }
 
-        public async Task<bool> IsTimeSlotAvailableAsync(DateTime date, TimeSpan startTime, TimeSpan endTime, string serviceType)
+        public async Task<bool> IsTimeSlotAvailableAsync(DateTime date, TimeSpan startTime, TimeSpan endTime, int activityId)
         {
             var appointments = await _appointmentRepository.GetAllAsync();
 
@@ -215,7 +235,7 @@ namespace BookingSystem.Application.Services
 
             // Check if there's any overlap with existing appointments
             var hasOverlap = appointments.Any(a =>
-                a.ServiceType == serviceType &&
+                a.ActivityId == activityId &&
                 a.Status != "Cancelled" &&
                 a.StartTime < endDateTime &&
                 a.EndTime > startDateTime);

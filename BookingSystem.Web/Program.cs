@@ -3,7 +3,6 @@ using BookingSystem.Application.Services;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Data;
 using BookingSystem.Infrastructure.Repositories;
-using BookingSystem.Infrastructure.Seeders;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,20 +11,33 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Database Configuration
+// Database - Use Production connection in Azure
+var connectionString = builder.Configuration.GetConnectionString(
+    builder.Environment.IsProduction() ? "ProductionConnection" : "DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // Repository Registration
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 // Service Registration
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
+builder.Services.AddScoped<IActivityService, ActivityService>(); 
+builder.Services.AddScoped<IReviewService, ReviewService>();
+
+// HttpClient for QuoteService
+builder.Services.AddHttpClient<IQuoteService, QuoteService>();
 // Seeder Registration
 builder.Services.AddScoped<DatabaseSeeder>();
+
+// Background Service за автоматско бришење
+builder.Services.AddHostedService<BookingSystem.Web.Services.AppointmentCleanupService>();
 
 // Authentication Configuration
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

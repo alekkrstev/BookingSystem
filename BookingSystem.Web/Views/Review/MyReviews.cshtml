@@ -1,0 +1,74 @@
+﻿@model IEnumerable<BookingSystem.Application.DTOs.ReviewDto>
+
+@{
+    ViewData["Title"] = "Мои Рецензии";
+}
+
+<div class="container mt-4">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <h2 class="text-white mb-4">
+        <i class="bi bi-star"></i> Мои Рецензии
+    </h2>
+
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var review in Model.OrderByDescending(r => r.CreatedAt))
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">@review.ActivityName</h5>
+
+                            <div class="mb-3">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= review.Rating)
+                                    {
+                                        <span style="color: gold; font-size: 1.5rem;">⭐</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: lightgray; font-size: 1.5rem;">⭐</span>
+                                    }
+                                }
+                                <strong class="ms-2">@review.Rating / 5</strong>
+                            </div>
+
+                            <p class="card-text">@review.Comment</p>
+
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i>
+                                @review.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            </small>
+
+                            <div class="mt-3">
+                                <form asp-action="Delete" asp-route-id="@review.Id" method="post"
+                                      onsubmit="return confirm('Дали сте сигурни?')">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i> Избриши
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">⭐</div>
+            <h3>Немате рецензии</h3>
+            <p>Остави рецензија за активностите што ги пробал!</p>
+        </div>
+    }
+</div>

@@ -18,6 +18,8 @@ namespace BookingSystem.Infrastructure.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<Review> Reviews { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,21 +39,45 @@ namespace BookingSystem.Infrastructure.Data
                 entity.HasIndex(e => e.Email).IsUnique();
             });
 
-            // Appointment configuration
+            // Activity configuration
+            modelBuilder.Entity<Activity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.NameMk).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.PricePerHour).HasPrecision(10, 2);
+            });
+
+            // Review configuration
+            modelBuilder.Entity<Review>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.Reviews)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Activity)
+                    .WithMany(a => a.Reviews)
+                    .HasForeignKey(e => e.ActivityId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Appointment configuration (updated)
             modelBuilder.Entity<Appointment>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.ServiceType).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.StartTime).IsRequired();
-                entity.Property(e => e.EndTime).IsRequired();
-                entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Notes).HasMaxLength(500);
 
-                // Relationship: User has many Appointments
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.Appointments)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Activity)
+                    .WithMany(a => a.Appointments)
+                    .HasForeignKey(e => e.ActivityId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

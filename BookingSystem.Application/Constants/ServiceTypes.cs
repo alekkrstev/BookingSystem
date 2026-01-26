@@ -8,7 +8,7 @@ namespace BookingSystem.Application.Constants
 {
     public static class ServiceTypes
     {
-        public const string SonyPlayStation = "SonyPlayStation";
+        public const string SonyPlayStation = "Sony PlayStation";
         public const string Darts = "Пикадо";
         public const string EightBallPool = "Билјард";
         public const string Fifa = "Фудбалче";

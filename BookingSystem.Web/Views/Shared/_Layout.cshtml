@@ -13,7 +13,7 @@
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-calendar-check"></i> Booking System
+                    <i class="bi bi-calendar-check"></i> 
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,9 +21,9 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        @* <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Почетна</a>
-                        </li> *@
+                        </li>
 
                         @if (User.Identity!.IsAuthenticated)
                         {
@@ -34,17 +34,33 @@
                                         <i class="bi bi-speedometer2"></i> Администрација
                                     </a>
                                 </li>
-                            }
-                            else
-                            {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Index">
-                                        <i class="bi bi-calendar3"></i> Мои Закажувања
+                                    <a class="nav-link" asp-controller="Activity" asp-action="Index">
+                                        <i class="bi bi-grid-3x3"></i> Активности
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="AdminDashboard">
+                                        <i class="bi bi-speedometer2"></i> Dashboard
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                               
+                                <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Create">
                                         <i class="bi bi-plus-circle"></i> Закажи Термин
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Appointment" asp-action="Index">
+                                        <i class="bi bi-calendar-check"></i> Мои Резервации
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Review" asp-action="MyReviews">
+                                        <i class="bi bi-star"></i> Мои Рецензии
                                     </a>
                                 </li>
                             }

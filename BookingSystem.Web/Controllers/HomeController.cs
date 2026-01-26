@@ -1,24 +1,29 @@
-using BookingSystem.Web.Models;
+using BookingSystem.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+
 namespace BookingSystem.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly IQuoteService _quoteService;
+
+        public HomeController(IQuoteService quoteService)
         {
+            _quoteService = quoteService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            // Get daily motivational quote
+            var quote = await _quoteService.GetRandomQuoteAsync();
+            ViewBag.DailyQuote = quote;
+
             return View();
         }
 
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

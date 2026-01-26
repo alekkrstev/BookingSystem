@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<BookingSystem.Application.DTOs.AppointmentDto>
 
 @{
-    ViewData["Title"] = "Мои Закажувања";
+    ViewData["Title"] = "Мои Резервации";
 }
 
 <div class="container mt-4">
@@ -9,81 +9,115 @@
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Мои Закажувања</h2>
+        <h2 class="text-white">
+            <i class="bi bi-calendar-check"></i> Мои Резервации
+        </h2>
         <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Закажи нов термин
+            <i class="bi bi-plus-circle"></i> Нова Резервација
         </a>
     </div>
 
     @if (Model.Any())
     {
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Активност</th>
-                        <th>Датум</th>
-                        <th>Време</th>
-                        <th>Времетраење</th>
-                        <th>Статус</th>
-                        <th>Белешки</th>
-                        <th>Акции</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var appointment in Model)
-                    {
-                        var duration = (appointment.EndTime - appointment.StartTime).TotalMinutes;
-                        <tr>
-                            <td><strong>@appointment.ServiceType</strong></td>
-                            <td>@appointment.StartTime.ToString("dd.MM.yyyy")</td>
-                            <td>@appointment.StartTime.ToString("HH:mm") - @appointment.EndTime.ToString("HH:mm")</td>
-                            <td>@duration мин</td>
-                            <td>
-                                @if (appointment.Status == "Pending")
+        <div class="row g-4">
+            @foreach (var appointment in Model.OrderBy(a => a.StartTime))
+            {
+                var isPast = appointment.EndTime < DateTime.Now;
+                var isToday = appointment.StartTime.Date == DateTime.Today;
+                var duration = (appointment.EndTime - appointment.StartTime).TotalMinutes;
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="appointment-card @(isPast ? "past-appointment" : "") @(isToday ? "today-appointment" : "")">
+                        <div class="appointment-header">
+                            <div class="appointment-icon">
+                                <span>@appointment.ActivityIcon</span>
+                            </div>
+                            <h5 class="appointment-title">@appointment.ActivityName</h5>
+                            @if (appointment.Status == "Pending")
+                            {
+                                <span class="badge badge-pending">
+                                    <i class="bi bi-clock"></i> Во очекување
+                                </span>
+                            }
+                            else if (appointment.Status == "Confirmed")
+                            {
+                                <span class="badge badge-confirmed">
+                                    <i class="bi bi-check-circle"></i> Потврдено
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-cancelled">
+                                    <i class="bi bi-x-circle"></i> Откажано
+                                </span>
+                            }
+                        </div>
+
+                        <div class="appointment-body">
+                            <div class="appointment-info">
+                                <div class="info-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span>@appointment.StartTime.ToString("dd.MM.yyyy (dddd)", new System.Globalization.CultureInfo("mk-MK"))</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>@appointment.StartTime.ToString("HH:mm") - @appointment.EndTime.ToString("HH:mm")</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="bi bi-hourglass-split"></i>
+                                    <span>@duration мин</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(appointment.Notes))
                                 {
-                                    <span class="badge bg-warning text-dark">Во очекување</span>
+                                    <div class="info-item">
+                                        <i class="bi bi-people"></i>
+                                        <span>@appointment.Notes</span>
+                                    </div>
                                 }
-                                else if (appointment.Status == "Confirmed")
-                                {
-                                    <span class="badge bg-success">Потврдено</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">Откажано</span>
-                                }
-                            </td>
-                            <td>@(appointment.Notes ?? "-")</td>
-                            <td>
-                                <form asp-action="Delete" asp-route-id="@appointment.Id" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Дали сте сигурни дека сакате да го избришете терминот?')">
-                                        <i class="bi bi-trash"></i> Избриши
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </div>
+
+                            @if (isToday)
+                            {
+                                <div class="today-badge">
+                                    <i class="bi bi-star-fill"></i> ДЕНЕС
+                                </div>
+                            }
+
+                            @if (!isPast)
+                            {
+                                <div class="appointment-actions">
+                                    <form asp-action="Delete" asp-route-id="@appointment.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-delete btn-sm"
+                                                onclick="return confirm('Дали сте сигурни дека сакате да ја откажете резервацијата?')">
+                                            <i class="bi bi-trash"></i> Откажи
+                                        </button>
+                                    </form>
+                                    <a asp-controller="Review" asp-action="Create" asp-route-activityId="@appointment.ActivityId"
+                                       class="btn btn-success btn-sm">
+                                        <i class="bi bi-star"></i> Остави Рецензија
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
     else
     {
-        <div class="alert alert-info" role="alert">
-            <h4 class="alert-heading">Немате закажани термини</h4>
-            <p>Закажете го вашиот прв термин со кликнување на копчето погоре.</p>
-            <hr>
-            <p class="mb-0">
-                <a asp-action="Create" class="btn btn-primary">
-                    <i class="bi bi-calendar-plus"></i> Закажи Термин
-                </a>
-            </p>
+        <div class="empty-state">
+            <div class="empty-state-icon">📅</div>
+            <h3>Немате активни резервации</h3>
+            <p>Закажете го вашиот прв термин и започнете со забавата!</p>
+            <a asp-action="Create" class="btn btn-primary btn-lg mt-3">
+                <i class="bi bi-calendar-plus"></i> Закажи Термин
+            </a>
         </div>
     }
 </div>
