@@ -64,7 +64,6 @@ namespace BookingSystem.Web.Controllers
             {
                 Name = activity.Name,
                 NameMk = activity.NameMk,
-                Description = activity.Description,
                 Icon = activity.Icon,
                 PricePerHour = activity.PricePerHour,
                 MaxPlayers = activity.MaxPlayers,

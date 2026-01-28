@@ -13,8 +13,6 @@ namespace BookingSystem.Application.DTOs
         public string NameMk { get; set; } = string.Empty;
 
         
-        [StringLength(500)]
-        public string Description { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Иконата е задолжителна")]
         public string Icon { get; set; } = string.Empty;
