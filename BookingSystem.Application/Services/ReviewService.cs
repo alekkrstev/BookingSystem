@@ -9,13 +9,16 @@ namespace BookingSystem.Application.Services
     {
         private readonly IReviewRepository _reviewRepository;
         private readonly IActivityRepository _activityRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
 
         public ReviewService(
             IReviewRepository reviewRepository,
-            IActivityRepository activityRepository)
+            IActivityRepository activityRepository,
+            IAppointmentRepository appointmentRepository)
         {
             _reviewRepository = reviewRepository;
             _activityRepository = activityRepository;
+            _appointmentRepository = appointmentRepository;
         }
 
         public async Task<ReviewDto?> GetReviewByIdAsync(int id)
@@ -44,21 +47,49 @@ namespace BookingSystem.Application.Services
 
         public async Task<ReviewDto> CreateReviewAsync(int userId, CreateReviewDto dto)
         {
-            // Verify activity exists
-            var activityExists = await _activityRepository.ExistsAsync(dto.ActivityId);
-            if (!activityExists)
-                throw new Exception("Activity not found");
+            // Validate based on review type
+            if (dto.ReviewType == "Activity")
+            {
+                if (!dto.ActivityId.HasValue)
+                    throw new Exception("Activity is required for activity reviews");
+
+                var activityExists = await _activityRepository.ExistsAsync(dto.ActivityId.Value);
+                if (!activityExists)
+                    throw new Exception("Activity not found");
+            }
 
             var review = new Review
             {
                 UserId = userId,
                 ActivityId = dto.ActivityId,
+                AppointmentId = dto.AppointmentId,
+                ReviewType = dto.ReviewType,
                 Rating = dto.Rating,
                 Comment = dto.Comment,
                 CreatedAt = DateTime.UtcNow
             };
 
             var created = await _reviewRepository.AddAsync(review);
+
+            // Mark appointment as reviewed if applicable
+            // Mark appointment as reviewed if applicable
+            if (dto.AppointmentId.HasValue && dto.AppointmentId.Value > 0)
+            {
+                try
+                {
+                    var appointment = await _appointmentRepository.GetByIdAsync(dto.AppointmentId.Value);
+                    if (appointment != null)
+                    {
+                        appointment.HasReview = true;
+                        await _appointmentRepository.UpdateAsync(appointment);
+                    }
+                }
+                catch
+                {
+                    // Ignore if appointment not found
+                }
+            }
+
             return MapToDto(created);
         }
 
@@ -98,11 +129,22 @@ namespace BookingSystem.Application.Services
                 UserId = review.UserId,
                 UserName = review.User?.UserName ?? "Unknown",
                 ActivityId = review.ActivityId,
-                ActivityName = review.Activity?.NameMk ?? "Unknown",
+                ActivityName = review.ReviewType == "Playroom" ? "ODAX Playroom" : (review.Activity?.NameMk ?? "Unknown"),
+                AppointmentId = review.AppointmentId,
+                ReviewType = review.ReviewType,
                 Rating = review.Rating,
                 Comment = review.Comment,
                 CreatedAt = review.CreatedAt
             };
+        }
+
+        public async Task<IEnumerable<ReviewDto>> GetPlayroomReviewsAsync()
+        {
+            var reviews = await _reviewRepository.GetAllAsync();
+            return reviews
+                .Where(r => r.ReviewType == "Playroom")
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(MapToDto);
         }
     }
 }

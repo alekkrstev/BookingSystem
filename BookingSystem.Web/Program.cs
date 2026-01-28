@@ -1,4 +1,4 @@
-using BookingSystem.Application.Interfaces;
+/*using BookingSystem.Application.Interfaces;
 using BookingSystem.Application.Services;
 using BookingSystem.Domain.Interfaces;
 using BookingSystem.Infrastructure.Data;
@@ -87,6 +87,141 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();*/
+using Microsoft.EntityFrameworkCore;
+using BookingSystem.Application.Interfaces;
+using BookingSystem.Application.Services;
+using BookingSystem.Domain.Interfaces;
+using BookingSystem.Infrastructure.Data;
+using BookingSystem.Infrastructure.Repositories;
+using BookingSystem.Web.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// --------------------
+// MVC
+// --------------------
+builder.Services.AddControllersWithViews();
+
+// --------------------
+// DATABASE (SQL Server local / SQLite Production)
+// --------------------
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    if (connectionString != null && connectionString.Contains("Data Source="))
+    {
+        options.UseSqlite(connectionString);
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
+
+// --------------------
+// REPOSITORIES
+// --------------------
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+
+// --------------------
+// SERVICES
+// --------------------
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+
+// --------------------
+// HTTP CLIENT
+// --------------------
+builder.Services.AddHttpClient<IQuoteService, QuoteService>();
+
+// --------------------
+// SEEDER
+// --------------------
+builder.Services.AddScoped<DatabaseSeeder>();
+
+// --------------------
+// BACKGROUND SERVICE (SAFE)
+// --------------------
+builder.Services.AddHostedService<AppointmentCleanupService>();
+
+// --------------------
+// AUTHENTICATION
+// --------------------
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
+
+var app = builder.Build();
+
+// --------------------
+// DATABASE INIT + SEED (SAFE FOR AZURE)
+// --------------------
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        if (context.Database.IsSqlite())
+        {
+            context.Database.EnsureCreated();
+        }
+        else
+        {
+            await context.Database.MigrateAsync();
+        }
+
+        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        await seeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database initialization failed");
+        // Õ≈ throw ? Azure ‰‡ ÌÂ º‡ „‡ÒË ‡ÔÎËÍ‡ˆËº‡Ú‡
+    }
+}
+
+// --------------------
+// MIDDLEWARE PIPELINE
+// --------------------
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+// ?? »— À”◊≈ÕŒ «¿ AZURE
+// app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();

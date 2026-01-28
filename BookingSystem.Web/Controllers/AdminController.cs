@@ -28,8 +28,10 @@ namespace BookingSystem.Web.Controllers
             try
             {
                 var allAppointments = await _appointmentService.GetAllAppointmentsAsync();
+
                 var expiredAppointments = allAppointments
-                    .Where(a => a.EndTime < DateTime.Now && a.Status != "Cancelled")
+                    .Where(a => a.EndTime < DateTime.Now &&
+                               (a.Status == "Cancelled" || a.Status == "Pending"))
                     .ToList();
 
                 foreach (var appointment in expiredAppointments)

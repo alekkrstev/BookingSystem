@@ -81,28 +81,69 @@
                                 }
                             </div>
 
-                            @if (isToday)
+                            @if (isToday && !isPast)
                             {
                                 <div class="today-badge">
-                                    <i class="bi bi-star-fill"></i> ДЕНЕС
+                                    <i class="bi bi-fill"></i> ДЕНЕС
                                 </div>
                             }
 
-                            @if (!isPast)
-                            {
-                                <div class="appointment-actions">
+                            <div class="appointment-actions">
+                                @if (!isPast && appointment.Status != "Cancelled")
+                                {
+                                    <!-- Откажи копче - само за идни резервации -->
                                     <form asp-action="Delete" asp-route-id="@appointment.Id" method="post" class="d-inline">
                                         <button type="submit" class="btn btn-delete btn-sm"
                                                 onclick="return confirm('Дали сте сигурни дека сакате да ја откажете резервацијата?')">
                                             <i class="bi bi-trash"></i> Откажи
                                         </button>
                                     </form>
-                                    <a asp-controller="Review" asp-action="Create" asp-route-activityId="@appointment.ActivityId"
-                                       class="btn btn-success btn-sm">
-                                        <i class="bi bi-star"></i> Остави Рецензија
-                                    </a>
-                                </div>
-                            }
+                                }
+
+                                @if (isPast && appointment.Status == "Confirmed")
+                                {
+                                    @if (!appointment.HasReview)
+                                    {
+                                        <!-- Leave Review копче - завршени confirmed резервации без рецензија -->
+                                        <a asp-controller="Review"
+                                           asp-action="Create"
+                                           asp-route-activityId="@appointment.ActivityId"
+                                           asp-route-appointmentId="@appointment.Id"
+                                           class="btn btn-success btn-sm">
+                                            <i class="bi bi-star"></i> Остави review
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <!-- Веќе остав рецензија badge -->
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Оставено review
+                                        </span>
+                                    }
+
+                                    <!-- Отстрани копче - за завршени резервации -->
+                                    <form asp-action="Delete" asp-route-id="@appointment.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-remove btn-sm"
+                                                onclick="return confirm('Потврдете')">
+                                            <i class="bi bi-x-circle"></i> Отстрани
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (isPast && appointment.Status == "Cancelled")
+                                {
+                                    <!-- Откажано - само отстрани -->
+                                    <span class="badge bg-secondary me-2">
+                                        <i class="bi bi-x-circle"></i> Откажано
+                                    </span>
+                                    <form asp-action="Delete" asp-route-id="@appointment.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-remove btn-sm"
+                                                onclick="return confirm('Дали сте сигурни дека сакате да ја отстраните резервацијата?')">
+                                            <i class="bi bi-x-circle"></i> Отстрани
+                                        </button>
+                                    </form>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

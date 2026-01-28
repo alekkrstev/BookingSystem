@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<BookingSystem.Application.DTOs.ReviewDto>
 
 @{
-    ViewData["Title"] = "Мои Рецензии";
+    ViewData["Title"] = "Мои Reviews";
 }
 
 <div class="container mt-4">
@@ -14,7 +14,7 @@
     }
 
     <h2 class="text-white mb-4">
-        <i class="bi bi-star"></i> Мои Рецензии
+        <i class="bi bi-star"></i> Мои Reviews
     </h2>
 
     @if (Model.Any())
@@ -27,19 +27,19 @@
                         <div class="card-body">
                             <h5 class="card-title">@review.ActivityName</h5>
 
-                            <div class="mb-3">
+                            <div class="mb-3 review-stars">
                                 @for (int i = 1; i <= 5; i++)
                                 {
                                     if (i <= review.Rating)
                                     {
-                                        <span style="color: gold; font-size: 1.5rem;">⭐</span>
+                                        <span class="star filled">⭐</span>
                                     }
                                     else
                                     {
-                                        <span style="color: lightgray; font-size: 1.5rem;">⭐</span>
+                                        <span class="star empty">⭐</span>
                                     }
                                 }
-                                <strong class="ms-2">@review.Rating / 5</strong>
+                                <strong class="rating-text ms-2">@review.Rating / 5</strong>
                             </div>
 
                             <p class="card-text">@review.Comment</p>
@@ -67,8 +67,8 @@
     {
         <div class="empty-state">
             <div class="empty-state-icon">⭐</div>
-            <h3>Немате рецензии</h3>
-            <p>Остави рецензија за активностите што ги пробал!</p>
+            <h3>Немате reviews</h3>
+            <p>Остави review за активностите што ги пробал!</p>
         </div>
     }
 </div>

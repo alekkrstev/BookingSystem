@@ -35,7 +35,6 @@ namespace BookingSystem.Infrastructure.Data
                 {
                     Name = "Sony PlayStation",
                     NameMk = "Sony PlayStation",
-                    Description = "Играј ги твоите омилени игри на најновата конзола - FIFA, GTA, Call of Duty и многу други!",
                     Icon = "🎮",
                     PricePerHour = 500,
                     MaxPlayers = 4,
@@ -45,7 +44,6 @@ namespace BookingSystem.Infrastructure.Data
                 {
                     Name = "Darts",
                     NameMk = "Пикадо",
-                    Description = "Покажи ја твојата прецизност и вештина во класичната игра на пикадо.",
                     Icon = "🎯",
                     PricePerHour = 300,
                     MaxPlayers = 4,
@@ -55,7 +53,6 @@ namespace BookingSystem.Infrastructure.Data
                 {
                     Name = "8-Ball Pool",
                     NameMk = "Билјард",
-                    Description = "Уживај во класична игра на билјард со пријатели.",
                     Icon = "🎱",
                     PricePerHour = 400,
                     MaxPlayers = 2,
@@ -65,7 +62,6 @@ namespace BookingSystem.Infrastructure.Data
                 {
                     Name = "FIFA",
                     NameMk = "Фудбалче",
-                    Description = "Соперничи се во најдобрата фудбалска игра!",
                     Icon = "⚽",
                     PricePerHour = 250,
                     MaxPlayers = 2,

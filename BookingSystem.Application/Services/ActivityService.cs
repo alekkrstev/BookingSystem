@@ -58,7 +58,6 @@ namespace BookingSystem.Application.Services
             {
                 Name = dto.Name,
                 NameMk = dto.NameMk,
-                Description = dto.Description,
                 Icon = dto.Icon,
                 PricePerHour = dto.PricePerHour,
                 MaxPlayers = dto.MaxPlayers,
@@ -77,7 +76,6 @@ namespace BookingSystem.Application.Services
 
             activity.Name = dto.Name;
             activity.NameMk = dto.NameMk;
-            activity.Description = dto.Description;
             activity.Icon = dto.Icon;
             activity.PricePerHour = dto.PricePerHour;
             activity.MaxPlayers = dto.MaxPlayers;
@@ -115,7 +113,6 @@ namespace BookingSystem.Application.Services
                 Id = activity.Id,
                 Name = activity.Name,
                 NameMk = activity.NameMk,
-                Description = activity.Description,
                 Icon = activity.Icon,
                 PricePerHour = activity.PricePerHour,
                 MaxPlayers = activity.MaxPlayers,

@@ -85,7 +85,8 @@ namespace BookingSystem.Application.Services
                 EndTime = created.EndTime,
                 Status = created.Status,
                 Notes = created.Notes,
-                CreatedAt = created.CreatedAt
+                CreatedAt = created.CreatedAt,
+                HasReview = created.HasReview
             };
         }
 
@@ -105,7 +106,8 @@ namespace BookingSystem.Application.Services
                 EndTime = a.EndTime,
                 Status = a.Status,
                 Notes = a.Notes,
-                CreatedAt = a.CreatedAt
+                CreatedAt = a.CreatedAt,
+                HasReview = a.HasReview
             });
         }
 
@@ -125,7 +127,8 @@ namespace BookingSystem.Application.Services
                 EndTime = a.EndTime,
                 Status = a.Status,
                 Notes = a.Notes,
-                CreatedAt = a.CreatedAt
+                CreatedAt = a.CreatedAt,
+                HasReview = a.HasReview
             });
         }
 
@@ -147,7 +150,8 @@ namespace BookingSystem.Application.Services
                 EndTime = appointment.EndTime,
                 Status = appointment.Status,
                 Notes = appointment.Notes,
-                CreatedAt = appointment.CreatedAt
+                CreatedAt = appointment.CreatedAt,
+                HasReview = appointment.HasReview
             };
         }
 

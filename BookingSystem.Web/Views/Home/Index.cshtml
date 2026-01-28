@@ -97,19 +97,28 @@
         }
     </div>
 
-    <!-- Daily Quote -->
+    <!-- Daily Quote with Flip Effect -->
     @if (ViewBag.DailyQuote != null)
     {
         var quote = ViewBag.DailyQuote as BookingSystem.Application.DTOs.QuoteDto;
 
-        <div class="daily-quote-card mb-5 animate-fade-in">
-            <div class="quote-icon">@quote.Icon</div>
-            <blockquote class="quote-content">
-                "@quote.Content"
-            </blockquote>
-            <div class="quote-author">- @quote.Author</div>
-            <div class="quote-gaming-context">
-                <i class="bi bi-controller"></i> @quote.GamingContext
+        <div class="daily-quote-flip-container mb-5 animate-fade-in">
+            <div class="daily-quote-flip-card">
+                <!-- Front Side - Original Quote -->
+                <div class="daily-quote-front">
+                    <blockquote class="quote-content">
+                        "@quote.Content"
+                    </blockquote>
+                    <div class="quote-author">— @quote.Author</div>
+                </div>
+
+                <!-- Back Side - Gaming Context -->
+                <div class="daily-quote-back">
+                    <div class="gaming-label">Gaming Wisdom</div>
+                    <div class="gaming-context-text">
+                        @quote.GamingContext
+                    </div>
+                </div>
             </div>
         </div>
     }
@@ -142,6 +151,11 @@
                             }
                         </div>
                     </div>
+                    <div class="text-center mb-5">
+                        <a asp-controller="Review" asp-action="CreatePlayroomReview" class="btn btn-warning btn-lg">
+                            <i class="bi"></i> Остави Review за ODAX
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -153,7 +167,7 @@
                 <div class="card text-center p-5">
                     <div class="card-body">
                         <h2 class="mb-4">🚀 Започни Денес!</h2>
-                        <p class="lead text-muted mb-4">
+                        <p class="lead text-white mb-4">
                             Најави се или креирај профил и резервирај го твојот термин во неколку едноставни чекори.
                         </p>
                         <div class="d-grid gap-3 d-md-flex justify-content-md-center">

@@ -1,0 +1,102 @@
+﻿@model IEnumerable<BookingSystem.Application.DTOs.ActivityDto>
+
+@{
+    ViewData["Title"] = "Наши Активности";
+}
+
+<div class="container mt-4">
+    <h2 class="text-white text-center mb-4">
+        <i class="bi bi-grid-3x3"></i> Наши Активности
+    </h2>
+    <p class="text-white-50 text-center mb-5">Разгледај ги нашите понуди и цени</p>
+
+    <div class="row g-4">
+        @foreach (var activity in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="activity-browse-card">
+                    <div class="activity-browse-header">
+                        <div class="activity-browse-icon">@activity.Icon</div>
+                        <h4 class="activity-browse-title">@activity.NameMk</h4>
+                        @if (activity.IsActive)
+                        {
+                            <span class="badge bg-success">Активно</span>
+                        }
+                    </div>
+
+                    <div class="activity-browse-body">
+                        <p class="activity-description">@activity.Description</p>
+
+                        <div class="activity-details">
+                            <div class="detail-item">
+                                <i class="bi bi-cash-coin"></i>
+                                <div>
+                                    <strong>Цена по час</strong>
+                                    <p class="price">@activity.PricePerHour ден</p>
+                                </div>
+                            </div>
+
+                            <div class="detail-item">
+                                <i class="bi bi-people-fill"></i>
+                                <div>
+                                    <strong>Максимално играчи</strong>
+                                    <p>@activity.MaxPlayers играчи</p>
+                                </div>
+                            </div>
+
+                            <div class="detail-item">
+                                <i class="bi bi-star-fill"></i>
+                                <div>
+                                    <strong>Рејтинг</strong>
+                                    <p>
+                                        @if (activity.ReviewCount > 0)
+                                        {
+                                            <span class="rating-stars">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    if (i <= Math.Round(activity.AverageRating))
+                                                    {
+                                                        <span class="star filled">⭐</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="star empty">⭐</span>
+                                                    }
+                                                }
+                                            </span>
+                                            <span class="rating-text">
+                                                @activity.AverageRating.ToString("F1") (@activity.ReviewCount)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Нема reviews</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <div class="cta-section text-center mt-5">
+            <div class="cta-card">
+                <h3 class="cta-title">Подготвен за забава?</h3>
+                <p class="cta-text">Логирај се за да закажеш термин!</p>
+                <div class="cta-buttons">
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Логирај се
+                    </a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-person-plus"></i> Регистрирај се
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

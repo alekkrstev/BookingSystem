@@ -19,7 +19,7 @@ namespace BookingSystem.Infrastructure.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Activity> Activities { get; set; }
-        public DbSet<Review> Reviews { get; set; } 
+        public DbSet<Review> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,14 +29,8 @@ namespace BookingSystem.Infrastructure.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.UserName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.PasswordHash).IsRequired();
-                entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Role).IsRequired().HasMaxLength(20);
-                entity.HasIndex(e => e.UserName).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.UserName).IsUnique();
             });
 
             // Activity configuration
@@ -48,7 +42,7 @@ namespace BookingSystem.Infrastructure.Data
                 entity.Property(e => e.PricePerHour).HasPrecision(10, 2);
             });
 
-            // Review configuration
+            // Review configuration (UPDATED)
             modelBuilder.Entity<Review>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -62,9 +56,15 @@ namespace BookingSystem.Infrastructure.Data
                     .WithMany(a => a.Reviews)
                     .HasForeignKey(e => e.ActivityId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                // NEW - Appointment relationship
+                entity.HasOne(e => e.Appointment)
+                    .WithOne(a => a.Review)
+                    .HasForeignKey<Review>(e => e.AppointmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Appointment configuration (updated)
+            // Appointment configuration
             modelBuilder.Entity<Appointment>(entity =>
             {
                 entity.HasKey(e => e.Id);

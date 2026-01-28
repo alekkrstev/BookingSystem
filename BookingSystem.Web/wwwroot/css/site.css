@@ -240,13 +240,6 @@ body::before {
   z-index: 1;
 }
 
-/* Navbar */
-.navbar-dark {
-  background: rgb(51, 47, 69, 0.95) !important;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
 /* Animation */
 @keyframes fadeInUp {
   from {
@@ -652,8 +645,61 @@ body::before {
 }
 
 .past-appointment {
-    opacity: 0.6;
-    filter: grayscale(50%);
+    opacity: 0.85;
+    filter: grayscale(80%); /* Сива card */
+    position: relative;
+}
+
+    .past-appointment::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(128, 128, 128, 0.1);
+        pointer-events: none;
+        border-radius: 20px;
+    }
+
+    /* Копчето "Остави Рецензија" FULL COLOR */
+    .past-appointment .btn-success {
+        filter: none !important; /* Remove grayscale */
+        opacity: 1 !important;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.5);
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.8);
+    }
+}
+
+.past-appointment .btn-success:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 35px rgba(16, 185, 129, 0.7);
+}
+
+/* Badge "Рецензија оставена" исто full color */
+.past-appointment .badge-success,
+.past-appointment .bg-success {
+    filter: none !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 10;
+}
+
+/* Статус badges во header full color */
+.past-appointment .appointment-header .badge {
+    filter: none !important;
+    opacity: 1 !important;
 }
 
 .appointment-actions {
@@ -1041,5 +1087,754 @@ body::before {
 
     50% {
         transform: translateY(-15px);
+    }
+}
+
+.appointment-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+    .appointment-actions .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .appointment-actions .badge {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+
+/* ========== PLAYROOM REVIEWS ========== */
+
+.playroom-header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    padding: 40px;
+    border-radius: 25px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.playroom-icons {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.rating-summary {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 30px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.average-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.rating-number {
+    font-size: 4rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+
+.rating-stars {
+    margin: 10px 0;
+}
+
+/* Review Cards */
+.review-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+    .review-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.review-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+.review-rating {
+    font-size: 1.2rem;
+}
+
+.review-body {
+    margin-top: 10px;
+}
+
+.review-comment {
+    color: #374151;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ========== ACTIVITY BROWSE (USER VIEW) ========== */
+
+.activity-browse-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+    .activity-browse-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        border-color: var(--primary-color);
+    }
+
+.activity-browse-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 30px 20px;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.activity-browse-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.activity-browse-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.activity-browse-header .badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+.activity-browse-body {
+    padding: 25px;
+    flex: 1;
+}
+
+.activity-description {
+    color: #6b7280;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    text-align: center;
+    font-style: italic;
+}
+
+.activity-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+    .detail-item i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-top: 5px;
+    }
+
+    .detail-item strong {
+        display: block;
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-bottom: 5px;
+    }
+
+    .detail-item p {
+        margin: 0;
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .detail-item .price {
+        color: var(--success-color);
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+
+.rating-stars {
+    font-size: 1.2rem;
+}
+
+.rating-text {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-left: 5px;
+}
+
+.activity-browse-footer {
+    padding: 20px;
+    background: #f9fafb;
+    border-top: 2px solid #e5e7eb;
+}
+
+    .activity-browse-footer .btn {
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+        .activity-browse-footer .btn:hover {
+            transform: scale(1.05);
+        }
+
+/* ========== REVIEW BUTTON ENHANCEMENT ========== */
+
+.appointment-actions .btn-success.btn-sm {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+    .appointment-actions .btn-success.btn-sm::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .appointment-actions .btn-success.btn-sm:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .appointment-actions .btn-success.btn-sm:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-3px) scale(1.08);
+        box-shadow: 0 10px 35px rgba(16, 185, 129, 0.6);
+        color: white;
+    }
+
+    .appointment-actions .btn-success.btn-sm i {
+        font-size: 1.2rem;
+        margin-right: 8px;
+        animation: starRotate 3s linear infinite;
+    }
+
+@keyframes starRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Badge "Рецензија оставена" styling */
+.appointment-actions .badge.bg-success {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* ========== GLASS MORPHISM NAVBAR ========== */
+
+.glass-navbar {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 12px 0;
+    transition: all 0.3s ease;
+}
+
+    .glass-navbar::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent );
+    }
+
+    /* Scrolled state */
+    .glass-navbar.scrolled {
+        background: rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+/* Brand */
+.glass-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: white !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 15px;
+}
+
+    .glass-brand:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+
+.brand-icon {
+    font-size: 2rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.brand-text {
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #fff, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Nav Links */
+.glass-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 20px !important;
+    margin: 0 5px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+    .glass-link i {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .glass-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent );
+        transition: left 0.5s ease;
+    }
+
+    .glass-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+        .glass-link:hover::before {
+            left: 100%;
+        }
+
+        .glass-link:hover i {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+    .glass-link.active {
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+/* Login/Register Buttons */
+.glass-btn-login {
+    background: rgba(99, 102, 241, 0.3);
+    border: 1px solid rgba(99, 102, 241, 0.5);
+}
+
+    .glass-btn-login:hover {
+        background: rgba(99, 102, 241, 0.5);
+        border-color: rgba(99, 102, 241, 0.8);
+    }
+
+.glass-btn-register {
+    background: rgba(139, 92, 246, 0.3);
+    border: 1px solid rgba(139, 92, 246, 0.5);
+}
+
+    .glass-btn-register:hover {
+        background: rgba(139, 92, 246, 0.5);
+        border-color: rgba(139, 92, 246, 0.8);
+    }
+
+/* Dropdown */
+.glass-dropdown {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.glass-dropdown-item {
+    color: white !important;
+    border-radius: 8px;
+    padding: 10px 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .glass-dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
+    }
+
+    .glass-dropdown-item i {
+        font-size: 1.1rem;
+    }
+
+/* Mobile Toggle */
+.glass-toggler {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+    .glass-toggler:focus {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .glass-link {
+        justify-content: flex-start;
+        margin: 5px 0;
+    }
+}
+
+/* Scroll Animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* ========== DAILY QUOTE CARD - FLIP EFFECT ========== */
+
+.daily-quote-flip-container {
+    perspective: 1500px;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.daily-quote-flip-card {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    cursor: pointer;
+}
+
+.daily-quote-flip-container:hover .daily-quote-flip-card {
+    transform: rotateY(180deg);
+}
+
+/* Front & Back Common Styles */
+.daily-quote-front,
+.daily-quote-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 25px;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* Front Side - Original Quote */
+.daily-quote-front {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    z-index: 2;
+}
+
+    .daily-quote-front::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient( 45deg, transparent, rgba(255, 255, 255, 0.1), transparent );
+        transform: rotate(45deg);
+        animation: shimmer 3s infinite;
+    }
+
+.quote-content {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: white;
+    margin: 20px 0;
+    font-style: italic;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+.quote-author {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 20px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+/* Back Side - Gaming Context */
+.daily-quote-back {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
+    backdrop-filter: blur(20px);
+    transform: rotateY(180deg);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+    .daily-quote-back::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+.gaming-label {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 30px;
+    padding: 10px 25px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    position: relative;
+    z-index: 1;
+}
+
+.gaming-context-text {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: white;
+    line-height: 1.8;
+    position: relative;
+    z-index: 1;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .daily-quote-flip-card {
+        height: 400px;
+    }
+
+    .daily-quote-front,
+    .daily-quote-back {
+        padding: 40px 30px;
+    }
+
+    .quote-content {
+        font-size: 1.4rem;
+    }
+
+    .gaming-context-text {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .daily-quote-flip-card {
+        height: 450px;
+    }
+
+    .quote-content {
+        font-size: 1.2rem;
+    }
+
+    .gaming-context-text {
+        font-size: 1.1rem;
+    }
+}
+
+/* ========== STAR RATINGS ========== */
+
+.star {
+    display: inline-block;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+    .star.filled {
+        color: #fbbf24; /* Bright yellow/gold */
+        filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.5));
+    }
+
+    .star.empty {
+        color: #9ca3af; /* Gray */
+        opacity: 0.5;
+    }
+
+/* Review Stars Container */
+.review-stars {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+    .review-stars .star {
+        font-size: 1.8rem;
+    }
+
+.rating-text {
+    font-size: 1.1rem;
+    color: #374151;
+    font-weight: 700;
+}
+
+/* Activity Browse Stars */
+.rating-stars .star {
+    font-size: 1.3rem;
+    margin: 0 2px;
+}
+
+/* Playroom Review Cards */
+.review-rating .star {
+    font-size: 1.4rem;
+    margin: 0 2px;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .star {
+        font-size: 1.2rem;
+    }
+
+    .review-stars .star {
+        font-size: 1.5rem;
     }
 }

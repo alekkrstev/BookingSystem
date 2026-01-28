@@ -1,64 +1,50 @@
-using BookingSystem.Domain.Interfaces;
+using BookingSystem.Application.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace BookingSystem.Web.Services
 {
     public class AppointmentCleanupService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<AppointmentCleanupService> _logger;
 
-        public AppointmentCleanupService(
-            IServiceProvider serviceProvider,
-            ILogger<AppointmentCleanupService> logger)
+        public AppointmentCleanupService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Appointment Cleanup Service started.");
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    await CleanupExpiredAppointments();
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var appointmentService = scope.ServiceProvider.GetRequiredService<IAppointmentService>();
+                        var appointments = await appointmentService.GetAllAppointmentsAsync();
+
+                        // Брише само Cancelled и Pending завршени резервации
+                        // НЕ брише Confirmed - за да може корисникот да остави review!
+                        var expiredAppointments = appointments
+                            .Where(a => a.EndTime < DateTime.Now &&
+                                       (a.Status == "Cancelled" || a.Status == "Pending"))
+                            .ToList();
+
+                        foreach (var appointment in expiredAppointments)
+                        {
+                            await appointmentService.DeleteAppointmentAsync(appointment.Id);
+                            Console.WriteLine($"[Cleanup] Deleted {appointment.Status} appointment #{appointment.Id}");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred during appointment cleanup.");
+                    Console.WriteLine($"[Cleanup Error] {ex.Message}");
                 }
 
-                // Провери на секои 1 час
+                // Провери секој час
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
-            }
-        }
-
-        private async Task CleanupExpiredAppointments()
-        {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var appointmentRepository = scope.ServiceProvider
-                    .GetRequiredService<IAppointmentRepository>();
-
-                var allAppointments = await appointmentRepository.GetAllAsync();
-                var expiredAppointments = allAppointments
-                    .Where(a => a.EndTime < DateTime.Now && a.Status != "Cancelled")
-                    .ToList();
-
-                foreach (var appointment in expiredAppointments)
-                {
-                    await appointmentRepository.DeleteAsync(appointment.Id);
-                    _logger.LogInformation(
-                        $"Deleted expired appointment: ID={appointment.Id}, " +
-                        $"Service={appointment.ActivityId}, EndTime={appointment.EndTime}");
-                }
-
-                if (expiredAppointments.Any())
-                {
-                    _logger.LogInformation($"Cleaned up {expiredAppointments.Count} expired appointments.");
-                }
             }
         }
     }

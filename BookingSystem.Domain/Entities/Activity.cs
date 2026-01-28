@@ -11,7 +11,6 @@ namespace BookingSystem.Domain.Entities
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string NameMk { get; set; } = string.Empty; // Македонски назив
-        public string Description { get; set; } = string.Empty;
         public string Icon { get; set; } = string.Empty; // Emoji
         public decimal PricePerHour { get; set; }
         public int MaxPlayers { get; set; }

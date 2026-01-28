@@ -12,5 +12,6 @@ namespace BookingSystem.Application.Interfaces
         Task<bool> UpdateReviewAsync(int id, int userId, CreateReviewDto dto);
         Task<bool> DeleteReviewAsync(int id, int userId);
         Task<double> GetAverageRatingAsync(int activityId);
+        Task<IEnumerable<ReviewDto>> GetPlayroomReviewsAsync();
     }
 }

@@ -23,6 +23,15 @@ namespace BookingSystem.Web.Controllers
             return View(activities);
         }
 
+        // GET: Activity/Browse (за сите корисници)
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> Browse()
+        {
+            var activities = await _activityService.GetActiveActivitiesAsync(); // Само активни
+            return View(activities);
+        }
+
         // GET: Activity/Create
         [HttpGet]
         public IActionResult Create()

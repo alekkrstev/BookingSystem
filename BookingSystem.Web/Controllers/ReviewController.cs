@@ -45,8 +45,12 @@ namespace BookingSystem.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var activity = await _activityService.GetActivityByIdAsync(dto.ActivityId);
-                ViewBag.Activity = activity;
+                // Load activity only if it's an activity review
+                if (dto.ActivityId.HasValue)
+                {
+                    var activity = await _activityService.GetActivityByIdAsync(dto.ActivityId.Value);
+                    ViewBag.Activity = activity;
+                }
                 return View(dto);
             }
 
@@ -61,8 +65,14 @@ namespace BookingSystem.Web.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
-                var activity = await _activityService.GetActivityByIdAsync(dto.ActivityId);
-                ViewBag.Activity = activity;
+
+                // Load activity only if it's an activity review
+                if (dto.ActivityId.HasValue)
+                {
+                    var activity = await _activityService.GetActivityByIdAsync(dto.ActivityId.Value);
+                    ViewBag.Activity = activity;
+                }
+
                 return View(dto);
             }
         }
@@ -102,6 +112,28 @@ namespace BookingSystem.Web.Controllers
 
             TempData["SuccessMessage"] = "Рецензијата е избришана!";
             return RedirectToAction("MyReviews");
+        }
+
+        // GET: Review/CreatePlayroomReview
+        [HttpGet]
+        public IActionResult CreatePlayroomReview()
+        {
+            var model = new CreateReviewDto
+            {
+                ReviewType = "Playroom"
+            };
+
+            ViewBag.IsPlayroomReview = true;
+            return View("Create", model);
+        }
+
+        // GET: Review/PlayroomReviews
+        [AllowAnonymous] // Сите можат да гледаат
+        [HttpGet]
+        public async Task<IActionResult> PlayroomReviews()
+        {
+            var reviews = await _reviewService.GetPlayroomReviewsAsync();
+            return View(reviews);
         }
     }
 }
